@@ -14,9 +14,7 @@ module Legion
           end
 
           def add_ore(ore_type:, domain:, content:, purity: 0.5, impurity: nil, ore_id: nil)
-            if @ores.size >= Constants::MAX_ORES
-              return { added: false, reason: :ore_store_full, max: Constants::MAX_ORES }
-            end
+            return { added: false, reason: :ore_store_full, max: Constants::MAX_ORES } if @ores.size >= Constants::MAX_ORES
 
             ore = Ore.new(
               ore_type: ore_type,
@@ -31,9 +29,7 @@ module Legion
           end
 
           def create_crucible(capacity: 10, crucible_id: nil, temperature: 0.0)
-            if @crucibles.size >= Constants::MAX_CRUCIBLES
-              return { created: false, reason: :crucible_store_full, max: Constants::MAX_CRUCIBLES }
-            end
+            return { created: false, reason: :crucible_store_full, max: Constants::MAX_CRUCIBLES } if @crucibles.size >= Constants::MAX_CRUCIBLES
 
             crucible = Crucible.new(capacity: capacity, crucible_id: crucible_id, temperature: temperature)
             @crucibles[crucible.crucible_id] = crucible
@@ -136,15 +132,15 @@ module Legion
             overheated_count = @crucibles.count { |_, c| c.overheated? }
 
             {
-              ore_count:        ore_count,
-              crucible_count:   crucible_count,
-              alloy_count:      alloy_count,
-              avg_ore_purity:   avg_purity,
-              avg_temperature:  avg_temp,
+              ore_count:            ore_count,
+              crucible_count:       crucible_count,
+              alloy_count:          alloy_count,
+              avg_ore_purity:       avg_purity,
+              avg_temperature:      avg_temp,
               optimal_crucibles:    optimal_count,
               overheated_crucibles: overheated_count,
-              ore_capacity:     Constants::MAX_ORES,
-              crucible_capacity: Constants::MAX_CRUCIBLES
+              ore_capacity:         Constants::MAX_ORES,
+              crucible_capacity:    Constants::MAX_CRUCIBLES
             }
           end
 

@@ -11,7 +11,7 @@ RSpec.describe Legion::Extensions::CognitiveFurnace::Helpers::Ore do
     end
 
     it 'assigns a uuid ore_id' do
-      expect(ore.ore_id).to match(/\A[0-9a-f\-]{36}\z/)
+      expect(ore.ore_id).to match(/\A[0-9a-f-]{36}\z/)
     end
 
     it 'defaults purity to 0.5' do

@@ -48,28 +48,7 @@ module Legion
             ores = ore_ids.filter_map { |id| ore_store[id] }
             return { smelted: false, reason: :no_ores_found } if ores.empty?
 
-            resolved_type = alloy_type || infer_alloy_type(ores)
-
-            avg_purity    = ores.sum(&:purity).to_f / ores.size
-            avg_impurity  = ores.sum(&:impurity).to_f / ores.size
-            temp_bonus    = temperature - Constants::SMELT_THRESHOLD
-            refined_purity = (avg_purity + (temp_bonus * 0.2)).clamp(0.0, 1.0)
-            domain        = ores.map(&:domain).tally.max_by { |_, n| n }&.first
-            content_parts = ores.map(&:content).compact
-
-            alloy = {
-              alloy_id:     SecureRandom.uuid,
-              alloy_type:   resolved_type,
-              domain:       domain,
-              purity:       refined_purity.round(10),
-              impurity:     avg_impurity.round(10),
-              ore_count:    ores.size,
-              source_ore_ids: ore_ids.dup,
-              content:      content_parts.join(' + '),
-              temperature_at_smelt: temperature,
-              created_at:   Time.now.utc
-            }
-
+            alloy = build_alloy(ores, alloy_type)
             ore_ids.clear
             { smelted: true, alloy: alloy }
           end
@@ -105,6 +84,35 @@ module Legion
           end
 
           private
+
+          def build_alloy(ores, alloy_type)
+            stats = compute_alloy_stats(ores)
+            {
+              alloy_id:             SecureRandom.uuid,
+              alloy_type:           alloy_type || infer_alloy_type(ores),
+              domain:               stats[:domain],
+              purity:               stats[:refined_purity].round(10),
+              impurity:             stats[:avg_impurity].round(10),
+              ore_count:            ores.size,
+              source_ore_ids:       ore_ids.dup,
+              content:              stats[:content],
+              temperature_at_smelt: temperature,
+              created_at:           Time.now.utc
+            }
+          end
+
+          def compute_alloy_stats(ores)
+            avg_purity     = ores.sum(&:purity).to_f / ores.size
+            avg_impurity   = ores.sum(&:impurity).to_f / ores.size
+            temp_bonus     = temperature - Constants::SMELT_THRESHOLD
+            refined_purity = (avg_purity + (temp_bonus * 0.2)).clamp(0.0, 1.0)
+            {
+              avg_impurity:   avg_impurity,
+              refined_purity: refined_purity,
+              domain:         ores.map(&:domain).tally.max_by { |_, n| n }&.first,
+              content:        ores.map(&:content).compact.join(' + ')
+            }
+          end
 
           def infer_alloy_type(ores)
             type_counts = ores.map(&:ore_type).tally

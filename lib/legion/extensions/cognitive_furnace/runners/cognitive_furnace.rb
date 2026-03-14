@@ -69,7 +69,7 @@ module Legion
           def smelt(crucible_id: nil, alloy_type: nil, engine: nil, **)
             return { success: false, reason: :missing_crucible_id } unless crucible_id
 
-            alloy_sym = alloy_type ? alloy_type.to_sym : nil
+            alloy_sym = alloy_type&.to_sym
             if alloy_sym && !Helpers::Constants::ALLOY_TYPES.include?(alloy_sym)
               return { success: false, reason: :invalid_alloy_type, valid: Helpers::Constants::ALLOY_TYPES }
             end
@@ -103,7 +103,7 @@ module Legion
           def furnace(engine)
             return engine if engine.is_a?(Helpers::FurnaceEngine)
 
-            @default_engine ||= Helpers::FurnaceEngine.new
+            @furnace ||= Helpers::FurnaceEngine.new
           end
 
           def log_debug(msg)

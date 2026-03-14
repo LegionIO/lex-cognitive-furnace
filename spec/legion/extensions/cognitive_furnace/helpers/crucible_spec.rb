@@ -22,7 +22,7 @@ RSpec.describe Legion::Extensions::CognitiveFurnace::Helpers::Crucible do
     end
 
     it 'assigns a uuid crucible_id' do
-      expect(crucible.crucible_id).to match(/\A[0-9a-f\-]{36}\z/)
+      expect(crucible.crucible_id).to match(/\A[0-9a-f-]{36}\z/)
     end
 
     it 'starts with empty ore_ids' do
@@ -286,7 +286,7 @@ RSpec.describe Legion::Extensions::CognitiveFurnace::Helpers::Crucible do
     it 'includes all key fields' do
       h = crucible.to_h
       expect(h).to include(:crucible_id, :temperature, :capacity, :ore_count, :ore_ids,
-                            :overheated, :optimal, :temperature_label, :created_at)
+                           :overheated, :optimal, :temperature_label, :created_at)
     end
 
     it 'reflects current state' do
